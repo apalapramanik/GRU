@@ -1,3 +1,10 @@
+"""
+GRU Language Model - Model Module
+
+Author: Apala Pramanik
+Description: Multi-layer GRU language model with embedding and output projection layers.
+"""
+
 import torch
 import torch.nn as nn
 from .gru_cell import GRUCell
@@ -37,10 +44,10 @@ class GRULanguageModel(nn.Module):
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
 
-    def forward(self, x, mask=None):
+    def forward(self, x):
         """
-        x : (B, T)
-        mask : ignored (kept for API compatibility)
+        x : (B, T) - input token indices
+        returns : (B, T, vocab_size) - logits for next token prediction
         """
 
         B, T = x.size()

@@ -1,3 +1,11 @@
+"""
+GRU Language Model - Training Script
+
+Author: Apala Pramanik
+Description: Main training script for character-level GRU language model on WikiText-2.
+             Includes training loop, validation, checkpointing, and text generation.
+"""
+
 import os
 import torch
 import torch.nn as nn
@@ -14,9 +22,7 @@ from src.model.gru_model import GRULanguageModel
 SEQ_LEN = 128
 BATCH_SIZE = 32
 EMBED_DIM = 128
-NUM_HEADS = 4
 NUM_LAYERS = 4
-FF_DIM = 256
 EPOCHS = 5
 LR = 3e-4
 GRAD_CLIP = 1.0
@@ -31,10 +37,25 @@ os.makedirs(CHECKPOINT_DIR, exist_ok=True)
 # ======================================================
 # DATA
 # ======================================================
-with open("data/wikitext-2-raw/wiki.train.raw", "r", encoding="utf-8") as f:
+TRAIN_DATA_PATH = "data/wikitext-2-raw/wiki.train.raw"
+VAL_DATA_PATH = "data/wikitext-2-raw/wiki.valid.raw"
+
+if not os.path.exists(TRAIN_DATA_PATH):
+    raise FileNotFoundError(
+        f"Training data not found at '{TRAIN_DATA_PATH}'. "
+        "Please download the WikiText-2 dataset first. See README.md for instructions."
+    )
+
+if not os.path.exists(VAL_DATA_PATH):
+    raise FileNotFoundError(
+        f"Validation data not found at '{VAL_DATA_PATH}'. "
+        "Please download the WikiText-2 dataset first. See README.md for instructions."
+    )
+
+with open(TRAIN_DATA_PATH, "r", encoding="utf-8") as f:
     train_text = f.read()
 
-with open("data/wikitext-2-raw/wiki.valid.raw", "r", encoding="utf-8") as f:
+with open(VAL_DATA_PATH, "r", encoding="utf-8") as f:
     val_text = f.read()
 
 # ---- optional debug mode (recommended initially) ----
@@ -178,12 +199,11 @@ for epoch in range(1, EPOCHS + 1):
         x = x.to(DEVICE)
         y = y.to(DEVICE)
 
-        mask = causal_mask(x.size(1), DEVICE)
         optimizer.zero_grad()
 
         if USE_AMP:
             with torch.cuda.amp.autocast():
-                logits = model(x, mask)
+                logits = model(x)
                 loss = criterion(
                     logits.view(-1, VOCAB_SIZE),
                     y.view(-1)
@@ -194,7 +214,7 @@ for epoch in range(1, EPOCHS + 1):
             scaler.step(optimizer)
             scaler.update()
         else:
-            logits = model(x, mask)
+            logits = model(x)
             loss = criterion(
                 logits.view(-1, VOCAB_SIZE),
                 y.view(-1)

@@ -1,3 +1,10 @@
+"""
+GRU Language Model - Dataset Module
+
+Author: Apala Pramanik
+Description: Character-level dataset for language modeling with sliding window sequences.
+"""
+
 import torch
 
 
@@ -11,7 +18,14 @@ class CharDataset:
     - target sequence shifted by 1
     """
 
-    def __init__(self, text, seq_len):
+    def __init__(self, text: str, seq_len: int):
+        if not text:
+            raise ValueError("Text cannot be empty")
+        if seq_len <= 0:
+            raise ValueError("seq_len must be positive")
+        if len(text) <= seq_len:
+            raise ValueError(f"Text length ({len(text)}) must be greater than seq_len ({seq_len})")
+
         self.seq_len = seq_len
 
         # Build vocabulary

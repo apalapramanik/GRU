@@ -1,20 +1,15 @@
-Below is a **clean, copy-paste-ready `README.md` for the LSTM implementation**, aligned with your current codebase.
-It **only documents the LSTM model** and **does not require any other changes**.
+# GRU From Scratch
 
----
+This repository implements a **character-level GRU language model from scratch**, with an emphasis on **understanding recurrent sequence modeling through explicit implementation**.
 
-# LSTM From Scratch
-
-This repository implements a **character-level LSTM language model from scratch**, with an emphasis on **understanding recurrent sequence modeling through explicit implementation**.
-
-All core components of the LSTM are written manually, including gate computations and state updates, without using high-level recurrent abstractions such as `nn.LSTM`.
+All core components of the GRU are written manually, including gate computations and state updates, without using high-level recurrent abstractions such as `nn.GRU`.
 
 ---
 
 ## Overview
 
 The model is trained as a **character-level autoregressive language model** on the **WikiText-2 (raw)** dataset.
-Given a sequence of characters, the model learns to predict the next character by maintaining and updating hidden and cell states over time.
+Given a sequence of characters, the model learns to predict the next character by maintaining and updating hidden states over time.
 
 The implementation focuses on:
 
@@ -26,26 +21,28 @@ The implementation focuses on:
 
 ## Model Architecture
 
-The model follows a standard stacked LSTM language model:
+The model follows a standard stacked GRU language model:
 
 ```
 tokens
  → token embedding
- → N × LSTM layers (from scratch)
+ → N × GRU layers (from scratch)
  → linear output head
  → next-character prediction
 ```
 
-### LSTM Cell
+### GRU Cell
 
-Each LSTM cell explicitly implements:
+Each GRU cell explicitly implements:
 
-1. Input gate
-2. Forget gate
-3. Output gate
-4. Candidate cell state
+1. **Update gate (z)** - controls how much of the previous hidden state to retain
+2. **Reset gate (r)** - controls how much of the previous hidden state to forget when computing the candidate
+3. **Candidate hidden state (h̃)** - proposed new hidden state
 
-Hidden and cell states are updated at every time step and propagated through layers.
+The hidden state update equation:
+```
+h_new = (1 - z) * h + z * h̃
+```
 
 ---
 
@@ -53,10 +50,10 @@ Hidden and cell states are updated at every time step and propagated through lay
 
 ### Core Components
 
-* From-scratch LSTM cell (no `nn.LSTM`)
+* From-scratch GRU cell (no `nn.GRU`)
 * Explicit gate equations
 * Explicit time-step loop
-* Multi-layer LSTM stack
+* Multi-layer GRU stack
 * Linear output projection
 
 ### Training Pipeline
@@ -84,7 +81,7 @@ Hidden and cell states are updated at every time step and propagated through lay
 ## Repository Structure
 
 ```
-lstm-from-scratch/
+GRU/
 ├── train.py
 ├── requirements.txt
 ├── checkpoints/
@@ -97,8 +94,8 @@ lstm-from-scratch/
 ├── src/
 │   ├── dataset.py
 │   └── model/
-│       ├── lstm_cell.py
-│       └── lstm_model.py
+│       ├── gru_cell.py
+│       └── gru_model.py
 └── README.md
 ```
 
@@ -203,7 +200,3 @@ Text generation is performed using:
 * Temperature-scaled multinomial sampling
 
 Generated samples provide a qualitative check on learning and long-range dependency modeling.
-
----
-
-

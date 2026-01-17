@@ -1,3 +1,10 @@
+"""
+GRU Language Model - GRU Cell Module
+
+Author: Apala Pramanik
+Description: GRU cell implemented from scratch with explicit gate computations.
+"""
+
 import torch
 import torch.nn as nn
 
