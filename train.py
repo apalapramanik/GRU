@@ -5,8 +5,7 @@ from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
 from src.dataset import CharDataset
-from src.model.lstm_model import LSTMLanguageModel
-from src.model.attention import causal_mask
+from src.model.gru_model import GRULanguageModel
 
 
 # ======================================================
@@ -65,7 +64,7 @@ VOCAB_SIZE = train_dataset.vocab_size
 # ======================================================
 # MODEL
 # ======================================================
-model = LSTMLanguageModel(
+model = GRULanguageModel(
     vocab_size=VOCAB_SIZE,
     embed_dim=EMBED_DIM,
     hidden_dim=EMBED_DIM,
@@ -116,8 +115,7 @@ def evaluate(model, dataloader):
         x = x.to(DEVICE)
         y = y.to(DEVICE)
 
-        mask = causal_mask(x.size(1), DEVICE)
-        logits = model(x, mask)
+        logits = model(x)
 
         loss = criterion(
             logits.view(-1, VOCAB_SIZE),

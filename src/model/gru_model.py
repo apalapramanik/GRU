@@ -1,14 +1,14 @@
 import torch
 import torch.nn as nn
-from .lstm_cell import LSTMCell
+from .gru_cell import GRUCell
 
 
-class LSTMLanguageModel(nn.Module):
+class GRULanguageModel(nn.Module):
     """
-    Character-level LSTM language model.
+    Character-level GRU language model.
 
     Architecture:
-    tokens → embedding → LSTM → linear head
+    tokens → embedding → GRU → linear head
     """
 
     def __init__(
@@ -24,7 +24,7 @@ class LSTMLanguageModel(nn.Module):
 
         self.layers = nn.ModuleList(
             [
-                LSTMCell(
+                GRUCell(
                     embed_dim if i == 0 else hidden_dim,
                     hidden_dim
                 )
@@ -46,12 +46,8 @@ class LSTMLanguageModel(nn.Module):
         B, T = x.size()
         x = self.embed(x)
 
-        # Initialize hidden & cell states
+        # Initialize hidden states
         h = [
-            torch.zeros(B, self.hidden_dim, device=x.device)
-            for _ in range(self.num_layers)
-        ]
-        c = [
             torch.zeros(B, self.hidden_dim, device=x.device)
             for _ in range(self.num_layers)
         ]
@@ -62,9 +58,7 @@ class LSTMLanguageModel(nn.Module):
             inp = x[:, t]
 
             for layer_idx, layer in enumerate(self.layers):
-                h[layer_idx], c[layer_idx] = layer(
-                    inp, h[layer_idx], c[layer_idx]
-                )
+                h[layer_idx] = layer(inp, h[layer_idx])
                 inp = h[layer_idx]
 
             outputs.append(inp.unsqueeze(1))
