@@ -2,19 +2,36 @@
 
 Character-level GRU language model trained on WikiText-2.
 
+Part of a four-model study comparing recurrent and attention-based architectures on character-level language modeling. Each model is implemented from scratch in PyTorch and trained under identical conditions on the same dataset.
+
+| Model | Val Accuracy | Val Loss | Parameters |
+|-------|-------------|----------|------------|
+| [RNN](https://github.com/apalapramanik/RNN) | 60.80% | 1.31 | 525K |
+| [LSTM](https://github.com/apalapramanik/LSTM) | 61.78% | 1.28 | 1.3M |
+| **GRU** (this repo) | **62.05%** | **1.26** | **1.1M** |
+| [Transformer](https://github.com/apalapramanik/Transformers) | 65.59% | 1.19 | 5.0M |
+
 ---
 
 ## Results
 
-**200 epochs · char-level · WikiText-2**
+**200 epochs · char-level · WikiText-2 · NVIDIA H200**
 
 | Metric | Value |
 |--------|-------|
 | Validation accuracy | **62.05%** |
 | Validation loss | 1.26 |
+| Parameters | 1,052,917 |
 
 ![Training curves](loss_curve_gru.png)
 ![Accuracy curves](accuracy_curve_gru.png)
+
+**Sample output** (greedy decoding, prompt: `"The history of"`):
+```
+The history of the season , the state of the season , the state of
+the season , the state of the season , the state of the season ...
+```
+*GRU achieves the best accuracy among the recurrent models with fewer parameters than LSTM, thanks to its simplified gating mechanism.*
 
 ---
 
@@ -39,6 +56,8 @@ tokens → token embedding (128-dim)
 | Optimizer | Adam (lr=3e-4, weight decay=1e-5) |
 | Scheduler | ReduceLROnPlateau (factor=0.5, patience=3, min_lr=1e-5) |
 | Epochs | 200 |
+
+**Training infrastructure:** Trained on an NVIDIA H200 GPU via SLURM on a university HPC cluster.
 
 ---
 
